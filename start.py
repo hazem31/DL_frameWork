@@ -5,6 +5,7 @@ import scipy
 from PIL import Image
 from scipy import ndimage
 from lr_utis import load_dataset
+import frameWork as fw
 
 train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
 
@@ -67,3 +68,17 @@ test_set_x_flatten = test_set_x_orig.reshape(test_set_x_orig.shape[0], -1).T
 train_set_x = train_set_x_flatten / 255.
 test_set_x = test_set_x_flatten / 255.
 
+model = fw.OneLayer(train_set_x.shape[0] , number_of_outputs=1 , act_func=fw.sigmoid,init_func=fw.initialize_with_zeros, cost_func=fw.logLikehood_cost_grad)
+
+d = model.train(train_set_x,train_set_y,num_iterations=2000,learning_rate=0.005,print_cost=False)
+
+
+print(model.accuracy(train_set_x,train_set_y))
+print(model.accuracy(test_set_x,test_set_y))
+
+costs = np.squeeze(d['costs'])
+plt.plot(costs)
+plt.ylabel('cost')
+plt.xlabel('iterations')
+plt.title("Learning rate =" + str(d["learning_rate"]))
+plt.show()
