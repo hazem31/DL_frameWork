@@ -346,3 +346,57 @@ class MultiLayer:
     def compute_cost(self,Alast, Y):
         m = Alast.shape[1]
         return self.cost_func(m,Alast,Y)
+
+    def backward_propagation(self, X, Y):
+        """
+        Implement the backward propagation using the instructions above.
+
+        Arguments:
+        parameters -- python dictionary containing our parameters
+        cache -- a dictionary containing "Z1", "A1", "Z2" and "A2".
+        X -- input data of shape (2, number of examples)
+        Y -- "true" labels vector of shape (1, number of examples)
+
+        Returns:
+        grads -- python dictionary containing your gradients with respect to different parameters
+        """
+        m = X.shape[1]
+
+        # First, retrieve W1 and W2 from the dictionary "parameters".
+        ### START CODE HERE ### (≈ 2 lines of code)
+        W1 = self.w[0]
+        W2 = self.w[1]
+        ### END CODE HERE ###
+
+        # Retrieve also A1 and A2 from dictionary "cache".
+        ### START CODE HERE ### (≈ 2 lines of code)
+        A1 = self.cache['A1']
+        A2 = self.cache['A2']
+        ### END CODE HERE ###
+
+        # Backward propagation: calculate dW1, db1, dW2, db2.
+        ### START CODE HERE ### (≈ 6 lines of code, corresponding to 6 equations on slide above)
+        dZ2 = A2 - Y
+        dW2 = (1 / m) * np.dot(dZ2, A1.T)
+        db2 = (1 / m) * np.sum(dZ2, axis=1, keepdims=True)
+        dZ1 = np.multiply(np.dot(W2.T, dZ2), 1 - np.power(A1, 2))
+        dW1 = (1 / m) * np.dot(dZ1, X.T)
+        db1 = (1 / m) * np.sum(dZ1, axis=1, keepdims=True)
+        ### END CODE HERE ###
+
+        #todo all depends on the typr of function
+        grad_list = []
+        dzi = self.prev[-1][1] - Y
+        for i in range(len(self.w),0,-1):
+            dwi = (1 / m) * np.dot(dzi, self.prev[i-1][1].T)
+            dbi = (1 / m) * np.sum(dzi, axis=1, keepdims=True)
+            dzi = np.multiply(np.dot((self.w[i-1]).T, dzi), 1 - np.power(A1, 2))
+
+
+
+        grads = {"dW1": dW1,
+                 "db1": db1,
+                 "dW2": dW2,
+                 "db2": db2}
+
+        return grads
