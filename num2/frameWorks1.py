@@ -9,25 +9,23 @@ def sigmoid(z):
 def identity(z):
     return z
 
-def initialize_with_zeros(dim):
 
+def initialize_with_zeros(dim):
     w = np.zeros(shape=dim)
-    b = np.zeros(shape=(dim[0],1))
+    b = np.zeros(shape=(dim[0], 1))
     # assert (w.shape == dim)
     # assert (isinstance(b, float) or isinstance(b, int))
     return w, b
 
-def logLikehood_cost_grad(m , Y, A, X):
+
+def logLikehood_cost_grad(m, Y, A, X):
     cost = (- 1 / m) * np.sum(Y * np.log(A) + (1 - Y) * (np.log(1 - A)))  # compute cost
     dw = (1 / m) * np.dot(X, (A - Y).T).T
     db = (1 / m) * np.sum(A - Y).T
     return cost, dw, db
 
-def cross_entropy(m,A,Y):
-    cost = (- 1 / m) * np.sum(Y * np.log(A) + (1 - Y) * (np.log(1 - A)))  # compute cost
-    return cost
 
-def optimize_sgd(model,X, Y, num_iterations, learning_rate, print_cost=False , epsilion = 0.0001):
+def optimize_sgd(model, X, Y, num_iterations, learning_rate, print_cost=False, epsilion=0.0001):
     """
     This function optimizes w and b by running a gradient descent algorithm
 
@@ -77,8 +75,8 @@ def optimize_sgd(model,X, Y, num_iterations, learning_rate, print_cost=False , e
 
 
 class OneLayer:
-
-    def __init__(self, number_of_neurons, number_of_outputs=1, act_func=identity, init_func=initialize_with_zeros, cost_func=logLikehood_cost_grad):
+    def __init__(self, number_of_neurons, number_of_outputs=1, act_func=identity, init_func=initialize_with_zeros,
+                 cost_func=logLikehood_cost_grad):
         self.w, self.b = init_func((number_of_outputs, number_of_neurons))
         self.number_of_neurons = number_of_neurons
         self.number_of_outputs = number_of_outputs
@@ -90,12 +88,10 @@ class OneLayer:
         else:
             self.classes = number_of_outputs
 
+    def re_init(self, init_func):
+        self.w, self.b = init_func((self.number_of_outputs, self.number_of_neurons))
 
-    def re_init(self,init_func):
-        self.w ,self.b = init_func((self.number_of_outputs,self.number_of_neurons))
-
-
-    def propagate(self, X, Y , type_of_y = '0'):
+    def propagate(self, X, Y, type_of_y='0'):
         """
         Implement the cost function and its gradient for the propagation explained above
 
@@ -116,16 +112,16 @@ class OneLayer:
         m = X.shape[1]
 
         Z = np.dot(self.w, X) + self.b
-        A =self.act_func(Z)
+        A = self.act_func(Z)
 
-        cost, dw, db = self.cost_func(m, Y, A,X)
+        cost, dw, db = self.cost_func(m, Y, A, X)
 
         grads = {"dw": dw,
                  "db": db}
 
         return grads, cost
 
-    def predict(self,X,threshold = 0.5,z_value=False):
+    def predict(self, X, threshold=0.5, z_value=False):
         '''
         Predict whether the label is 0 or 1 using learned logistic regression parameters (w, b)
 
@@ -138,13 +134,13 @@ class OneLayer:
         Y_prediction -- a numpy array (vector) containing all predictions (0/1) for the examples in X
         '''
 
-        #todo should a class start with a one or zero for the first class
-        #num_of_classes = [i for i in range(self.classes)]
+        # todo should a class start with a one or zero for the first class
+        # num_of_classes = [i for i in range(self.classes)]
         m = X.shape[1]
         Y_prediction = np.zeros((1, m))
-        #w = w.reshape(X.shape[0], 1)
+        # w = w.reshape(X.shape[0], 1)
 
-        Z = np.dot(self.w , X) + self.b
+        Z = np.dot(self.w, X) + self.b
 
         if z_value == True:
             return Z
@@ -153,17 +149,17 @@ class OneLayer:
 
         if self.classes == 2:
             for i in range(A.shape[1]):
-                #todo check if should be 0 or -1
+                # todo check if should be 0 or -1
                 Y_prediction[0, i] = 1 if A[0, i] > threshold else 0
 
         else:
             for i in range(A.shape[1]):
-                #todo check this later
-                Y_prediction[0, i] = np.argmax(A[:,i])
+                # todo check this later
+                Y_prediction[0, i] = np.argmax(A[:, i])
 
         return Y_prediction
 
-    def train(self ,X_train , Y_train,num_iterations=2000, learning_rate=0.5, print_cost=False):
+    def train(self, X_train, Y_train, num_iterations=2000, learning_rate=0.5, print_cost=False):
         """
         Builds the logistic regression model by calling the function you've implemented previously
 
@@ -180,19 +176,18 @@ class OneLayer:
         d -- dictionary containing information about the model.
         """
 
-
         # Gradient descent (≈ 1 line of code)
-        grads , costs = optimize_sgd(self, X_train, Y_train, num_iterations, learning_rate, print_cost)
+        grads, costs = optimize_sgd(self, X_train, Y_train, num_iterations, learning_rate, print_cost)
 
         # Predict test/train set examples (≈ 2 lines of code)
 
-        #Y_prediction_test = self.predict(X_test)
-        #Y_prediction_train = self.predict(X_train)
+        # Y_prediction_test = self.predict(X_test)
+        # Y_prediction_train = self.predict(X_train)
 
 
 
-        #print("train accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_train - Y_train)) * 100))
-        #print("test accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_test - Y_test)) * 100))
+        # print("train accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_train - Y_train)) * 100))
+        # print("test accuracy: {} %".format(100 - np.mean(np.abs(Y_prediction_test - Y_test)) * 100))
 
         d = {"costs": costs,
              "w": self.w,
@@ -202,15 +197,16 @@ class OneLayer:
 
         return d
 
-    def accuracy(self,X,Y):
+    def accuracy(self, X, Y):
         prediction = self.predict(X)
         accuracy = 100 - np.mean(np.abs(prediction - Y)) * 100
         return accuracy
 
-    def test(self,X_test,Y_test):
+    def test(self, X_test, Y_test):
         Y_prediction_test = self.predict(X_test)
         accuracy = 100 - np.mean(np.abs(Y_prediction_test - Y_test)) * 100
         return accuracy
+
 
 # model = OneLayer(2, act_func=sigmoid)
 # X, Y = np.array([[1,2], [3,4]]), np.array([[1, 0]])
@@ -230,45 +226,77 @@ class OneLayer:
 # print("dw = " + str(grads["dw"]))
 # print("db = " + str(grads["db"]))
 
+def cross_entropy(m, A, Y):
+    cost = (- 1 / m) * np.sum(Y * np.log(A) + (1 - Y) * (np.log(1 - A)))  # compute cost
+    return cost
+
+
+def cross_entropy_der(m, A, Y):
+    return ((-1 * Y) / A) + ((1 - Y) / (1 - A))
+
+
+def sigmoid_der(A):
+    return A * (1 - A)
+
 
 def tanh(z):
     return np.tanh(z)
 
-def random_init_zero_bias(n_2,n_1 , mult = 0.01):
-    return np.random.randn(n_2, n_1) * 0.01 , np.zeros(shape=(n_2, 1))
+
+def tanh_der(A):
+    return 1 - A ** 2
+
+
+def random_init_zero_bias(n_2, n_1, mult=0.01):
+    return np.random.randn(n_2, n_1) * 0.01, np.zeros(shape=(n_2, 1))
+
+
+def determine_der_act_func(func):
+    if func == sigmoid:
+        return sigmoid_der
+    elif func == tanh:
+        return tanh_der
+
+
+def determine_der_cost_func(func):
+    if func == cross_entropy:
+        return cross_entropy_der
 
 
 class MultiLayer:
-
-    def __init__(self, number_of_neurons = 0, cost_func=cross_entropy):
-        self.w, self.b = [] , []
+    def __init__(self, number_of_neurons=0, cost_func=cross_entropy):
+        self.w, self.b = [], []
+        self.parameters = {}
         self.layer_size = []
+
         self.number_of_input_neurons = number_of_neurons
         self.number_of_outputs = 0
-        self.act_func = []
-        self.act_func_out = None
-        self.cost_func = cost_func
 
-        self.parameters = {}
+        self.act_func = []
+        self.derivative_act_func = []
+
+        self.cost_func = cost_func
+        self.cost_func_der = determine_der_cost_func(self.cost_func)
+
         self.cache = {}
         self.prev = []
 
-    def addLayerInput(self,size):
+    def addLayerInput(self, size):
         self.number_of_input_neurons = size
         self.layer_size.append(size)
 
-
-    def addHidenLayer(self,size,act_func=sigmoid):
+    def addHidenLayer(self, size, act_func=sigmoid):
         self.layer_size.append(size)
         self.act_func.append(act_func)
+        self.derivative_act_func.append(determine_der_act_func(act_func))
 
-    def addOutputLayer(self,size,act_func=sigmoid):
+    def addOutputLayer(self, size, act_func=sigmoid):
         self.number_of_outputs = size
         self.layer_size.append(size)
         self.act_func.append(act_func)
+        self.derivative_act_func.append(determine_der_act_func(act_func))
 
-
-    def initialize_parameters(self,seed = 2 , init_func = random_init_zero_bias):
+    def initialize_parameters(self, seed=2, init_func=random_init_zero_bias):
         """
         Argument:
         n_x -- size of the input layer
@@ -285,21 +313,18 @@ class MultiLayer:
 
         np.random.seed(seed)  # we set up a seed so that your output matches ours although the initialization is random.
 
-
-        for i in range(len(self.layer_size)-1):
-            out = init_func(self.layer_size[i+1] , self.layer_size[i])
+        for i in range(len(self.layer_size) - 1):
+            out = init_func(self.layer_size[i + 1], self.layer_size[i])
             self.w.append(out[0])
             self.b.append(out[1])
 
-
-
-        for i in range(len(self.layer_size)-1):
-            self.parameters["W"+str(i+1)] = self.w[i]
-            self.parameters["b"+str(i+1)] = self.b[i]
+        for i in range(len(self.layer_size) - 1):
+            self.parameters["W" + str(i + 1)] = self.w[i]
+            self.parameters["b" + str(i + 1)] = self.b[i]
 
         return self.parameters
 
-    def forward_propagation(self,X):
+    def forward_propagation(self, X):
         """
         Argument:
         X -- input data of size (n_x, m)
@@ -309,43 +334,30 @@ class MultiLayer:
         A2 -- The sigmoid output of the second activation
         cache -- a dictionary containing "Z1", "A1", "Z2" and "A2"
         """
-        # Retrieve each parameter from the dictionary "parameters"
-        ### START CODE HERE ### (≈ 4 lines of code)
-        # W1 = parameters['W1']
-        # b1 = parameters['b1']
-        # W2 = parameters['W2']
-        # b2 = parameters['b2']
-        # ### END CODE HERE ###
-
-        # Implement Forward Propagation to calculate A2 (probabilities)
-        ### START CODE HERE ### (≈ 4 lines of code)
-
-        self.prev.append((1,X))
+        self.prev = []
+        self.prev.append((1, X))
         for i in range(len(self.layer_size) - 1):
             Zi = np.dot(self.w[i], self.prev[i][1]) + self.b[i]
             Ai = self.act_func[i](Zi)
-            self.prev.append((Zi,Ai))
-
+            self.prev.append((Zi, Ai))
 
         A_last = self.prev[-1][1]
 
-
-        for i in range(len(self.layer_size)-1):
-            self.cache["Z"+str(i+1)] = self.prev[i+1][0]
+        for i in range(len(self.layer_size) - 1):
+            self.cache["Z" + str(i + 1)] = self.prev[i + 1][0]
             self.cache["A" + str(i + 1)] = self.prev[i + 1][1]
 
-
-        #todo sould i compute cost in here
+        # todo sould i compute cost in here
 
         return A_last, self.cache
 
-    def set_cost(self,cost_func):
+    def set_cost(self, cost_func):
         self.cost_func = cost_func
+        self.cost_func_der = determine_der_cost_func(cost_func)
 
-
-    def compute_cost(self,Alast, Y):
+    def compute_cost(self, Alast, Y):
         m = Alast.shape[1]
-        return self.cost_func(m,Alast,Y)
+        return self.cost_func(m, Alast, Y)
 
     def backward_propagation(self, X, Y):
         """
@@ -362,41 +374,137 @@ class MultiLayer:
         """
         m = X.shape[1]
 
-        # First, retrieve W1 and W2 from the dictionary "parameters".
-        ### START CODE HERE ### (≈ 2 lines of code)
-        W1 = self.w[0]
-        W2 = self.w[1]
-        ### END CODE HERE ###
+        # just for testing
+        # temp = []
+        # if self.prev[0][0] != 1:
+        #     temp.append((1, X))
+        #     for i in range(len(self.prev)):
+        #         temp.append(self.prev[i])
+        #
+        # self.prev = temp
 
-        # Retrieve also A1 and A2 from dictionary "cache".
-        ### START CODE HERE ### (≈ 2 lines of code)
-        A1 = self.cache['A1']
-        A2 = self.cache['A2']
-        ### END CODE HERE ###
+        # todo all depends on the type of function in cost and actviation function
+        grad_list1_w = []
+        grad_list1_b = []
 
-        # Backward propagation: calculate dW1, db1, dW2, db2.
-        ### START CODE HERE ### (≈ 6 lines of code, corresponding to 6 equations on slide above)
-        dZ2 = A2 - Y
-        dW2 = (1 / m) * np.dot(dZ2, A1.T)
-        db2 = (1 / m) * np.sum(dZ2, axis=1, keepdims=True)
-        dZ1 = np.multiply(np.dot(W2.T, dZ2), 1 - np.power(A1, 2))
-        dW1 = (1 / m) * np.dot(dZ1, X.T)
-        db1 = (1 / m) * np.sum(dZ1, axis=1, keepdims=True)
-        ### END CODE HERE ###
+        Alast = self.prev[-1][1]
+        final_act = self.derivative_act_func[-1]
+        dzi = self.cost_func_der(m, Alast, Y) * final_act(Alast)
 
-        #todo all depends on the typr of function
-        grad_list = []
-        dzi = self.prev[-1][1] - Y
-        for i in range(len(self.w),0,-1):
+        if self.cost_func == cross_entropy:
+            if self.act_func[-1] == sigmoid:
+                pass
+
+        for i in range(len(self.w), 0, -1):
+            A = self.prev[i-1][1]
             dwi = (1 / m) * np.dot(dzi, self.prev[i-1][1].T)
             dbi = (1 / m) * np.sum(dzi, axis=1, keepdims=True)
-            dzi = np.multiply(np.dot((self.w[i-1]).T, dzi), 1 - np.power(A1, 2))
+            if i != 1:
+                der_func = self.derivative_act_func[i - 2]
+                A = self.prev[i - 1][1]
+                dzi = np.multiply(np.dot((self.w[i - 1]).T, dzi), der_func(A))
 
+            grad_list1_w.append(dwi)
+            grad_list1_b.append(dbi)
 
+        # reverse grad list
+        grad_list_w = []
+        grad_list_b = []
 
-        grads = {"dW1": dW1,
-                 "db1": db1,
-                 "dW2": dW2,
-                 "db2": db2}
+        for i in range(len(grad_list1_w) - 1, -1, -1):
+            grad_list_w.append(grad_list1_w[i])
+            grad_list_b.append(grad_list1_b[i])
+
+        grads = {}
+
+        for i in range(len(grad_list_w)):
+            grads['dW' + str(i + 1)] = grad_list_w[i]
+            grads['db' + str(i + 1)] = grad_list_b[i]
 
         return grads
+
+    def set_cashe(self, cache,X):
+        self.cache = cache
+        self.prev = []
+        self.prev.append((1, X))
+        for i in range(int(len(cache.keys()) / 2)):
+            A, Z = cache["A" + str(i + 1)], cache["Z" + str(i + 1)]
+            self.prev.append((Z, A))
+
+    def set_parameters(self, para):
+        self.parameters = para
+        self.w = []
+        self.b = []
+        for i in range(int(len(para.keys()) / 2)):
+            W, b = para["W" + str(i + 1)], para["b" + str(i + 1)]
+            self.w.append(W)
+            self.b.append(b)
+
+    def set_parameters_internal(self):
+        self.parameters = {}
+        for i in range(len(self.w)):
+            self.parameters["W"+str(i+1)] = self.w[i]
+            self.parameters["b" + str(i + 1)] = self.b[i]
+
+    def update_parameters(self,grads, learning_rate=1.2):
+        """
+        Updates parameters using the gradient descent update rule given above
+
+        Arguments:
+        parameters -- python dictionary containing your parameters
+        grads -- python dictionary containing your gradients
+
+        Returns:
+        parameters -- python dictionary containing your updated parameters
+        """
+        # Retrieve each parameter from the dictionary "parameters"
+
+
+        # Retrieve each gradient from the dictionary "grads"
+        ### START CODE HERE ### (≈ 4 lines of code)
+
+        for i in range(len(self.w)):
+            self.w[i] = self.w[i] - learning_rate * grads["dW"+str(i+1)]
+            self.b[i] = self.b[i] - learning_rate * grads["db" + str(i+1)]
+
+
+
+        self.set_parameters_internal()
+
+        return self.parameters
+
+    def train(self,X, Y, num_iterations=10000, print_cost=False, init_func=random_init_zero_bias ,cont=0):
+        """
+        Arguments:
+        X -- dataset of shape (2, number of examples)
+        Y -- labels of shape (1, number of examples)
+        n_h -- size of the hidden layer
+        num_iterations -- Number of iterations in gradient descent loop
+        print_cost -- if True, print the cost every 1000 iterations
+
+        Returns:
+        parameters -- parameters learnt by the model. They can then be used to predict.
+        """
+
+        if cont == 0:
+            self.initialize_parameters(init_func=init_func,seed=3)
+            print(self.w)
+
+        for i in range(0, num_iterations):
+
+            # Forward propagation. Inputs: "X, parameters". Outputs: "A2, cache".
+            Alast, cache = self.forward_propagation(X)
+
+            # Cost function. Inputs: "A2, Y, parameters". Outputs: "cost".
+            cost = self.compute_cost(Alast, Y)
+
+            # Backpropagation. Inputs: "parameters, cache, X, Y". Outputs: "grads".
+            grads = self.backward_propagation(X, Y)
+
+            # Gradient descent parameter update. Inputs: "parameters, grads". Outputs: "parameters".
+            parameters = self.update_parameters(grads)
+
+            if print_cost and i % 1000 == 0:
+                print("Cost after iteration %i: %f" % (i, cost))
+
+        return parameters
