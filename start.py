@@ -5,7 +5,8 @@ import scipy
 from PIL import Image
 from scipy import ndimage
 from lr_utis import load_dataset
-import frameWork as fw
+import frameWork1 as fw
+from utis import *
 
 train_set_x_orig, train_set_y, test_set_x_orig, test_set_y, classes = load_dataset()
 
@@ -73,12 +74,34 @@ model = fw.OneLayer(train_set_x.shape[0] , number_of_outputs=1 , act_func=fw.sig
 d = model.train(train_set_x,train_set_y,num_iterations=2000,learning_rate=0.005,print_cost=False)
 
 
+
 print(model.accuracy(train_set_x,train_set_y))
 print(model.accuracy(test_set_x,test_set_y))
 
+print(model.b.shape)
+
 costs = np.squeeze(d['costs'])
+print(costs)
 plt.plot(costs)
 plt.ylabel('cost')
 plt.xlabel('iterations')
 plt.title("Learning rate =" + str(d["learning_rate"]))
 plt.show()
+
+model = fw.MultiLayer()
+
+model.addLayerInput(train_set_x.shape[0])
+
+model.addHidenLayer(20,act_func=fw.relu)
+
+model.addHidenLayer(7,act_func=fw.relu)
+
+model.addHidenLayer(5,act_func=fw.relu)
+
+model.addOutputLayer(train_set_y.shape[0],act_func=fw.sigmoid)
+
+model.initialize_parameters(seed=1)
+
+parameters = model.train(train_set_x,train_set_y,num_iterations=2500,print_cost=True , cont=0 ,learning_rate=0.0075 , init_func=fw.initialize_with_zeros)
+
+print(parameters)
