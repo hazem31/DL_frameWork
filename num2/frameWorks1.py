@@ -247,6 +247,20 @@ def tanh_der(A):
     return 1 - A ** 2
 
 
+
+def relu(z):
+    A = np.maximum(0, z)
+    return A
+
+def relu_der(A):
+    Z = np.array(A, copy=True)
+    der = np.array(A, copy=True)
+
+    der[Z <= 0] = 0
+    der[Z > 0] = 1
+
+    return der
+
 def random_init_zero_bias(n_2, n_1, mult=0.01):
     return np.random.randn(n_2, n_1) * 0.01, np.zeros(shape=(n_2, 1))
 
@@ -256,7 +270,8 @@ def determine_der_act_func(func):
         return sigmoid_der
     elif func == tanh:
         return tanh_der
-
+    elif func == relu:
+        return relu_der
 
 def determine_der_cost_func(func):
     if func == cross_entropy:
@@ -311,14 +326,22 @@ class MultiLayer:
                         b2 -- bias vector of shape (n_y, 1)
         """
 
+        #todo very important check later
+
         np.random.seed(seed)  # we set up a seed so that your output matches ours although the initialization is random.
 
-        for i in range(len(self.layer_size) - 1):
-            out = init_func(self.layer_size[i + 1], self.layer_size[i])
-            self.w.append(out[0])
-            self.b.append(out[1])
+        # for i in range(len(self.layer_size) - 1):
+        #     out = init_func(self.layer_size[i + 1], self.layer_size[i])
+        #     self.w.append(out[0])
+        #     self.b.append(out[1])
+        L = len(self.layer_size)  # number of layers in the network
 
-        for i in range(len(self.layer_size) - 1):
+        for l in range(1, L):
+            self.w.append(np.random.randn(self.layer_size[l], self.layer_size[l - 1]) / np.sqrt(
+                self.layer_size[l - 1]))  # *0.01
+            self.b.append(np.zeros((self.layer_size[l], 1)))
+
+        for i in range(len(self.layer_size)-1):
             self.parameters["W" + str(i + 1)] = self.w[i]
             self.parameters["b" + str(i + 1)] = self.b[i]
 
@@ -473,7 +496,7 @@ class MultiLayer:
 
         return self.parameters
 
-    def train(self,X, Y, num_iterations=10000, print_cost=False, init_func=random_init_zero_bias ,cont=0):
+    def train(self,X, Y, num_iterations=10000, print_cost=False, init_func=random_init_zero_bias ,cont=0 ,learning_rate=1):
         """
         Arguments:
         X -- dataset of shape (2, number of examples)
@@ -486,9 +509,9 @@ class MultiLayer:
         parameters -- parameters learnt by the model. They can then be used to predict.
         """
 
-        if cont == 0:
-            self.initialize_parameters(init_func=init_func,seed=3)
-            print(self.w)
+        # if cont == 0:
+        #     self.initialize_parameters(init_func=init_func,seed=3)
+        #     print(self.w)
 
         for i in range(0, num_iterations):
 
@@ -502,9 +525,9 @@ class MultiLayer:
             grads = self.backward_propagation(X, Y)
 
             # Gradient descent parameter update. Inputs: "parameters, grads". Outputs: "parameters".
-            parameters = self.update_parameters(grads)
+            parameters = self.update_parameters(grads,learning_rate=learning_rate)
 
-            if print_cost and i % 1000 == 0:
+            if print_cost and i % 100 == 0:
                 print("Cost after iteration %i: %f" % (i, cost))
 
         return parameters
